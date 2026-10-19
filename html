@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Macros">
+<meta name="theme-color" content="#07090C">
+<title>Macros</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#07090C; --surface:#0C1017; --border:#141C24; --dim:#121A22;
+    --text:#C8D8E8; --muted:#5A7080;
+    --cal:#C8A030; --pro:#12A08A; --carb:#2E86D6; --warn:#C85A3A;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px);
+    overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px;}
+
+  header{padding:18px 0 10px;}
+  h1{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em;}
+  .date{font-size:11.5px;color:var(--muted);margin-top:3px;}
+
+  nav{display:flex;gap:0;border-bottom:1px solid var(--border);position:sticky;top:0;
+      background:var(--bg);z-index:5;margin-bottom:14px;}
+  nav button{flex:1;padding:12px 8px;font-size:12.5px;font-weight:600;background:none;
+      border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;
+      font-family:inherit;}
+  nav button.on{color:#5AAEE0;border-bottom-color:#5AAEE0;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+        padding:14px;margin-bottom:10px;}
+  .eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);
+        margin-bottom:8px;text-transform:uppercase;}
+
+  .hero{text-align:center;padding:22px 14px 18px;}
+  .hero .num{font-size:54px;font-weight:800;line-height:1;color:var(--cal);
+        font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+  .hero .unit{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.08em;
+        text-transform:uppercase;font-weight:600;}
+
+  .macros{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .macro{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 14px;}
+  .macro .k{font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;
+        font-weight:600;}
+  .macro .v{font-size:27px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .macro.p .v{color:var(--pro);} .macro.c .v{color:var(--carb);}
+  .macro .v span{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px;}
+
+  .foods{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .food{background:var(--dim);border:1px solid var(--border);border-radius:10px;
+        padding:11px 12px;text-align:left;cursor:pointer;font-family:inherit;color:var(--text);
+        transition:border-color .12s,background .12s;}
+  .food:active{background:#18222C;border-color:#2A3A48;}
+  .food .fn{font-size:12.5px;font-weight:600;line-height:1.3;}
+  .food .fd{font-size:10.5px;color:var(--muted);margin-top:4px;}
+  .food .fd b{font-weight:600;}
+  .food .fd .pp{color:var(--pro);} .food .fd .cc{color:var(--carb);}
+
+  label{display:block;font-size:10.5px;color:var(--muted);margin-bottom:4px;}
+  input{background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--text);
+        padding:9px 10px;font-size:13px;width:100%;font-family:inherit;}
+  input:focus{outline:none;border-color:#2A4356;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:9px;}
+  .btn{border:none;border-radius:8px;padding:11px 16px;font-size:12.5px;font-weight:600;
+        cursor:pointer;font-family:inherit;width:100%;margin-top:10px;}
+  .btn.add{background:var(--cal);color:#0B0B06;}
+  .btn.reset{background:transparent;border:1px solid #3A2420;color:var(--warn);}
+  .btn.reset:active{background:#1A0E0B;}
+
+  .entry{display:flex;align-items:center;gap:10px;padding:11px 0;
+        border-bottom:1px solid var(--border);}
+  .entry:last-child{border-bottom:none;}
+  .entry .t{font-size:10px;color:var(--muted);min-width:42px;font-variant-numeric:tabular-nums;}
+  .entry .mid{flex:1;min-width:0;}
+  .entry .en{font-size:12.5px;font-weight:600;}
+  .entry .em{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .entry .em .pp{color:var(--pro);} .entry .em .cc{color:var(--carb);}
+  .entry .ec{font-size:13px;font-weight:700;color:var(--cal);font-variant-numeric:tabular-nums;}
+  .entry .x{background:none;border:none;color:var(--muted);font-size:17px;line-height:1;
+        padding:4px 2px 4px 8px;cursor:pointer;font-family:inherit;}
+  .empty{font-size:12px;color:var(--muted);text-align:center;padding:26px 10px;line-height:1.6;}
+  .hide{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Macros</h1>
+    <div class="date" id="today"></div>
+  </header>
+
+  <nav>
+    <button id="tabMain" class="on">Counter</button>
+    <button id="tabLog">Log</button>
+  </nav>
+
+  <!-- COUNTER -->
+  <section id="main">
+    <div class="card hero">
+      <div class="num" id="kcal">0</div>
+      <div class="unit">Calories today</div>
+    </div>
+
+    <div class="macros">
+      <div class="macro p"><div class="k">Protein</div><div class="v"><span id="pro">0</span><span>g</span></div></div>
+      <div class="macro c"><div class="k">Carbs</div><div class="v"><span id="carb">0</span><span>g</span></div></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Log a food</div>
+      <div class="foods" id="foods"></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Something else</div>
+      <label for="cn">Name</label>
+      <input id="cn" placeholder="e.g. gel, tortilla, coffee" autocomplete="off">
+      <div class="row3">
+        <div><label for="cc">Calories</label><input id="cc" inputmode="numeric" placeholder="0"></div>
+        <div><label for="cp">Protein g</label><input id="cp" inputmode="numeric" placeholder="0"></div>
+        <div><label for="ch">Carbs g</label><input id="ch" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <button class="btn add" id="addCustom">Add it</button>
+    </div>
+
+    <button class="btn reset" id="reset">Reset the day</button>
+  </section>
+
+  <!-- LOG -->
+  <section id="log" class="hide">
+    <div class="card">
+      <div class="eyebrow">Today, newest first</div>
+      <div id="entries"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var FOODS = [
+    { n: "Apple",               c: 53,  p: 0,  h: 25 },
+    { n: "Banana",              c: 105, p: 0,  h: 27 },
+    { n: "Meat, 200 g",         c: 450, p: 40, h: 0  },
+    { n: "Chicken, 200 g",      c: 250, p: 45, h: 0  },
+    { n: "Oat bowl",            c: 450, p: 0,  h: 45 },
+    { n: "Rice, 250 g",         c: 330, p: 0,  h: 75 },
+    { n: "Dessert, night",      c: 150, p: 0,  h: 0  },
+    { n: "Rice cakes & honey",  c: 100, p: 0,  h: 0  },
+    { n: "3 eggs & txorizo",    c: 431, p: 30, h: 0  }
+  ];
+
+  var KEY = "macros_v1";
+
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  // State is one day only: a stored day that is not today starts empty.
+  var state = { date: todayKey(), entries: [] };
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.date === todayKey() && Array.isArray(parsed.entries)) {
+          state = { date: parsed.date, entries: parsed.entries };
+        }
+      }
+    } catch (e) {}
+  }
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function num(v) {
+    var n = parseFloat(String(v).replace(",", "."));
+    return isFinite(n) && n > 0 ? Math.round(n) : 0;
+  }
+
+  function clock() {
+    var d = new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function addEntry(n, c, p, h) {
+    state.entries.push({ id: Date.now() + "-" + Math.random().toString(36).slice(2, 7), n: n, c: c, p: p, h: h, t: clock() });
+    save();
+    render();
+  }
+
+  function removeEntry(id) {
+    state.entries = state.entries.filter(function (e) { return e.id !== id; });
+    save();
+    render();
+  }
+
+  // ── rendering ─────────────────────────────────────────────────────────
+  var elK = document.getElementById("kcal");
+  var elP = document.getElementById("pro");
+  var elC = document.getElementById("carb");
+  var elEntries = document.getElementById("entries");
+
+  function totals() {
+    return state.entries.reduce(function (a, e) {
+      a.c += e.c; a.p += e.p; a.h += e.h; return a;
+    }, { c: 0, p: 0, h: 0 });
+  }
+
+  function macroLine(parent, p, h) {
+    if (!p && !h) { parent.appendChild(document.createTextNode("—")); return; }
+    if (p) {
+      var sp = document.createElement("span");
+      sp.className = "pp"; sp.textContent = p + " g protein";
+      parent.appendChild(sp);
+    }
+    if (p && h) parent.appendChild(document.createTextNode("  ·  "));
+    if (h) {
+      var sc = document.createElement("span");
+      sc.className = "cc"; sc.textContent = h + " g carbs";
+      parent.appendChild(sc);
+    }
+  }
+
+  function renderFoods() {
+    var box = document.getElementById("foods");
+    box.textContent = "";
+    FOODS.forEach(function (f) {
+      var b = document.createElement("button");
+      b.className = "food";
+      var nm = document.createElement("div");
+      nm.className = "fn"; nm.textContent = f.n;
+      var dt = document.createElement("div");
+      dt.className = "fd";
+      var cal = document.createElement("b");
+      cal.textContent = f.c + " cal";
+      dt.appendChild(cal);
+      if (f.p || f.h) {
+        dt.appendChild(document.createTextNode("  ·  "));
+        macroLine(dt, f.p, f.h);
+      }
+      b.appendChild(nm); b.appendChild(dt);
+      b.addEventListener("click", function () { addEntry(f.n, f.c, f.p, f.h); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderLog() {
+    elEntries.textContent = "";
+    if (!state.entries.length) {
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Nothing logged yet today. Anything you add on the counter page shows up here.";
+      elEntries.appendChild(e);
+      return;
+    }
+    state.entries.slice().reverse().forEach(function (en) {
+      var row = document.createElement("div");
+      row.className = "entry";
+
+      var t = document.createElement("div");
+      t.className = "t"; t.textContent = en.t;
+
+      var mid = document.createElement("div");
+      mid.className = "mid";
+      var nm = document.createElement("div");
+      nm.className = "en"; nm.textContent = en.n;
+      var mc = document.createElement("div");
+      mc.className = "em";
+      macroLine(mc, en.p, en.h);
+      mid.appendChild(nm); mid.appendChild(mc);
+
+      var c = document.createElement("div");
+      c.className = "ec"; c.textContent = en.c;
+
+      var x = document.createElement("button");
+      x.className = "x"; x.textContent = "×";
+      x.setAttribute("aria-label", "Remove " + en.n);
+      x.addEventListener("click", function () { removeEntry(en.id); });
+
+      row.appendChild(t); row.appendChild(mid); row.appendChild(c); row.appendChild(x);
+      elEntries.appendChild(row);
+    });
+  }
+
+  function render() {
+    var t = totals();
+    elK.textContent = t.c;
+    elP.textContent = t.p;
+    elC.textContent = t.h;
+    renderLog();
+  }
+
+  // ── tabs ──────────────────────────────────────────────────────────────
+  var tabMain = document.getElementById("tabMain");
+  var tabLog = document.getElementById("tabLog");
+  var secMain = document.getElementById("main");
+  var secLog = document.getElementById("log");
+
+  function show(which) {
+    var m = which === "main";
+    secMain.classList.toggle("hide", !m);
+    secLog.classList.toggle("hide", m);
+    tabMain.classList.toggle("on", m);
+    tabLog.classList.toggle("on", !m);
+    window.scrollTo(0, 0);
+  }
+  tabMain.addEventListener("click", function () { show("main"); });
+  tabLog.addEventListener("click", function () { show("log"); });
+
+  // ── custom food ───────────────────────────────────────────────────────
+  document.getElementById("addCustom").addEventListener("click", function () {
+    var nEl = document.getElementById("cn"), cEl = document.getElementById("cc"),
+        pEl = document.getElementById("cp"), hEl = document.getElementById("ch");
+    var name = nEl.value.trim() || "Custom";
+    var c = num(cEl.value), p = num(pEl.value), h = num(hEl.value);
+    if (!c && !p && !h) { cEl.focus(); return; }
+    addEntry(name, c, p, h);
+    nEl.value = ""; cEl.value = ""; pEl.value = ""; hEl.value = "";
+    nEl.blur();
+  });
+
+  // ── reset ─────────────────────────────────────────────────────────────
+  document.getElementById("reset").addEventListener("click", function () {
+    if (!state.entries.length) return;
+    if (window.confirm("Clear everything logged today?")) {
+      state.entries = [];
+      save();
+      render();
+    }
+  });
+
+  // ── a day that rolls over while the page is open ──────────────────────
+  function checkDay() {
+    if (state.date !== todayKey()) {
+      state = { date: todayKey(), entries: [] };
+      save();
+      render();
+      stampDate();
+    }
+  }
+  function stampDate() {
+    var d = new Date();
+    document.getElementById("today").textContent =
+      d.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+  }
+  setInterval(checkDay, 60000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkDay(); });
+
+  load();
+  stampDate();
+  renderFoods();
+  render();
+})();
+</script>
+</body>
+</html>
